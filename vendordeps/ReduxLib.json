@@ -1,0 +1,20 @@
+{
+  "fileName": "ReduxLib.json",
+  "name": "ReduxLib",
+  "version": "2026.1.2",
+  "frcYear": "2026",
+  "uuid": "d4a60018-a7aa-4f7c-82b4-dba5a7a0ab24",
+  "mavenUrls": [
+    "https://frcsdk.reduxrobotics.com/"
+  ],
+  "jsonUrl": "https://frcsdk.reduxrobotics.com/ReduxLib_2026.json",
+  "javaDependencies": [
+    {
+      "groupId": "com.reduxrobotics.frc",
+      "artifactId": "ReduxLib-java",
+      "version": "2026.1.2"
+    }
+  ],
+  "jniDependencies": [],
+  "cppDependencies": []
+}

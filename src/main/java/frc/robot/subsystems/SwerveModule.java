@@ -1,5 +1,6 @@
 package frc.robot.subsystems;
 
+import com.reduxrobotics.sensors.canandmag.Canandmag;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkBase.ControlType;
 import com.revrobotics.CANSparkBase.IdleMode;
@@ -7,6 +8,7 @@ import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkPIDController;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
@@ -14,12 +16,13 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import frc.robot.Constants.DriveConstants;
 
 /**
- * One MK4i swerve module — NEO v1.1 drive + NEO v1.1 turn, both via SparkMax.
+ * One MK4i swerve module — NEO v1.1 drive + NEO v1.1 turn, both via SparkMax,
+ * with a Redux Helium CANandmag absolute encoder on the turning shaft.
  *
- * IMPORTANT: This code uses the NEO's built-in relative encoder for the turning
- * motor. That means the robot MUST be powered on with all four wheels pointing
- * straight forward, or a separate zeroing routine must be run before enabling.
- * If your modules have CANCoders, replace the turn-encoder logic accordingly.
+ * The CANandmag seeds the SparkMax relative encoder at startup so wheel angle
+ * is always correct regardless of robot orientation when powered on.
+ * Zero each encoder's position offset using Redux Alchemist so that
+ * 0 rotations = wheel pointing straight forward.
  */
 public class SwerveModule {
 
@@ -32,12 +35,18 @@ public class SwerveModule {
     private final SparkPIDController drivePID;
     private final SparkPIDController turnPID;
 
+    // Absolute encoder — gives true wheel angle even after power cycle
+    private final Canandmag canandmag;
+
     /**
      * @param driveCanId    CAN ID for the drive SparkMax
      * @param turnCanId     CAN ID for the turning SparkMax
-     * @param driveInverted True if the drive motor needs to be inverted
+     * @param encoderCanId  CAN ID for the Redux Helium CANandmag
+     * @param driveInverted True if the drive motor runs the wrong direction
      */
-    public SwerveModule(int driveCanId, int turnCanId, boolean driveInverted) {
+    public SwerveModule(int driveCanId, int turnCanId, int encoderCanId, boolean driveInverted) {
+        canandmag  = new Canandmag(encoderCanId);
+
         driveMotor = new CANSparkMax(driveCanId, MotorType.kBrushless);
         turnMotor  = new CANSparkMax(turnCanId,  MotorType.kBrushless);
 
@@ -58,7 +67,7 @@ public class SwerveModule {
         driveEncoder.setPositionConversionFactor(DriveConstants.DRIVE_ENCODER_POSITION_FACTOR);
         driveEncoder.setVelocityConversionFactor(DriveConstants.DRIVE_ENCODER_VELOCITY_FACTOR);
 
-        // ── Turn encoder ──────────────────────────────────────────────────────────
+        // ── Turn encoder (relative, seeded from CANandmag at startup) ─────────────
         turnEncoder = turnMotor.getEncoder();
         turnEncoder.setPositionConversionFactor(DriveConstants.TURNING_ENCODER_POSITION_FACTOR);
         turnEncoder.setVelocityConversionFactor(DriveConstants.TURNING_ENCODER_VELOCITY_FACTOR);
@@ -86,13 +95,31 @@ public class SwerveModule {
         driveMotor.burnFlash();
         turnMotor.burnFlash();
 
-        resetEncoders();
+        // Seed turn encoder from absolute position so angle is correct at startup
+        driveEncoder.setPosition(0.0);
+        seedTurnEncoderFromAbsolute();
     }
 
-    /** Zeros both encoders. Call at startup after aligning wheels forward. */
+    /**
+     * Reads the CANandmag and writes the result into the SparkMax relative
+     * encoder so closed-loop control starts from the correct angle.
+     * getAbsPosition() returns 0.0–1.0 (one full rotation); we convert to
+     * radians and normalize to [-π, π].
+     */
+    public void seedTurnEncoderFromAbsolute() {
+        double absRadians = MathUtil.angleModulus(canandmag.getAbsPosition() * 2.0 * Math.PI);
+        turnEncoder.setPosition(absRadians);
+    }
+
+    /** Zeros the drive encoder and re-seeds the turn encoder from the absolute encoder. */
     public void resetEncoders() {
         driveEncoder.setPosition(0.0);
-        turnEncoder.setPosition(0.0);
+        seedTurnEncoderFromAbsolute();
+    }
+
+    /** Returns the raw absolute position from the CANandmag in radians [-π, π]. */
+    public double getAbsoluteAngleRadians() {
+        return MathUtil.angleModulus(canandmag.getAbsPosition() * 2.0 * Math.PI);
     }
 
     public SwerveModuleState getState() {

@@ -46,15 +46,20 @@ public final class Constants {
         public static final double MAX_ANGULAR_SPEED_RADS = 2.0 * Math.PI;
 
         // ── CAN IDs ───────────────────────────────────────────────────────────────
-        public static final int FL_DRIVE_ID = 1;
-        public static final int FL_TURN_ID  = 2;
-        public static final int FR_DRIVE_ID = 3;
-        public static final int FR_TURN_ID  = 4;
-        public static final int BL_DRIVE_ID = 5;
-        public static final int BL_TURN_ID  = 6;
-        public static final int BR_DRIVE_ID = 7;
-        public static final int BR_TURN_ID  = 8;
-        public static final int PIGEON_ID   = 9;
+        public static final int FL_DRIVE_ID   = 1;
+        public static final int FL_TURN_ID    = 2;
+        public static final int FR_DRIVE_ID   = 3;
+        public static final int FR_TURN_ID    = 4;
+        public static final int BL_DRIVE_ID   = 5;
+        public static final int BL_TURN_ID    = 6;
+        public static final int BR_DRIVE_ID   = 7;
+        public static final int BR_TURN_ID    = 8;
+        public static final int PIGEON_ID     = 9;
+        // Redux Helium CANandmag absolute encoders (set CAN IDs in Redux Alchemist)
+        public static final int FL_ENCODER_ID = 10;
+        public static final int FR_ENCODER_ID = 11;
+        public static final int BL_ENCODER_ID = 12;
+        public static final int BR_ENCODER_ID = 13;
 
         // ── Motor inversions (flip if wheels drive in the wrong direction) ────────
         public static final boolean FL_DRIVE_INVERTED   = false;

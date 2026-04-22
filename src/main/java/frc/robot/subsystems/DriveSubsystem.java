@@ -20,19 +20,19 @@ public class DriveSubsystem extends SubsystemBase {
     // ── Four MK4i modules (FL, FR, BL, BR) ───────────────────────────────────
     private final SwerveModule frontLeft = new SwerveModule(
             DriveConstants.FL_DRIVE_ID, DriveConstants.FL_TURN_ID,
-            DriveConstants.FL_DRIVE_INVERTED);
+            DriveConstants.FL_ENCODER_ID, DriveConstants.FL_DRIVE_INVERTED);
 
     private final SwerveModule frontRight = new SwerveModule(
             DriveConstants.FR_DRIVE_ID, DriveConstants.FR_TURN_ID,
-            DriveConstants.FR_DRIVE_INVERTED);
+            DriveConstants.FR_ENCODER_ID, DriveConstants.FR_DRIVE_INVERTED);
 
     private final SwerveModule backLeft = new SwerveModule(
             DriveConstants.BL_DRIVE_ID, DriveConstants.BL_TURN_ID,
-            DriveConstants.BL_DRIVE_INVERTED);
+            DriveConstants.BL_ENCODER_ID, DriveConstants.BL_DRIVE_INVERTED);
 
     private final SwerveModule backRight = new SwerveModule(
             DriveConstants.BR_DRIVE_ID, DriveConstants.BR_TURN_ID,
-            DriveConstants.BR_DRIVE_INVERTED);
+            DriveConstants.BR_ENCODER_ID, DriveConstants.BR_DRIVE_INVERTED);
 
     // ── Pigeon 2 mounted at center of frame ───────────────────────────────────
     private final Pigeon2 pigeon = new Pigeon2(DriveConstants.PIGEON_ID);
@@ -127,7 +127,7 @@ public class DriveSubsystem extends SubsystemBase {
         backRight.stop();
     }
 
-    /** Zeros all drive + turn encoders. Call before enabling if no absolute encoders. */
+    /** Zeros drive encoders and re-seeds all turn encoders from their CANandmag absolute positions. */
     public void resetEncoders() {
         frontLeft.resetEncoders();
         frontRight.resetEncoders();
