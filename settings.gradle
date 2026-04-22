@@ -1,0 +1,9 @@
+pluginManagement {
+    repositories {
+        mavenLocal()
+        gradlePluginPortal()
+        maven { url = "https://frcmaven.wpi.edu/release" }
+    }
+}
+
+rootProject.name = 'SwerveBot'

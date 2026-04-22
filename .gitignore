@@ -1,0 +1,17 @@
+# Gradle build artifacts
+build/
+.gradle/
+out/
+
+# WPILib
+.wpilib/
+*.halsim
+
+# IDE
+.idea/
+*.iml
+.vscode/
+*.class
+
+# macOS
+.DS_Store
